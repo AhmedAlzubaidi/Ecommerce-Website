@@ -28,11 +28,11 @@ class DeletePendingOrders
      */
     public function handle()
     {
-        $time      = Carbon::now()->subMinute();
-        $orders    = Order::where('created_at', '<', $time)->get();
+        $time   = Carbon::now()->subMinute();
+        $orders = Order::where('created_at', '<', $time)->get();
 
         foreach ($orders as $order) {
-            $order->status = config('orderstatus.CANCELED');
+            $order->status = \App\Utility\Messages\Order::STATUS_CANCELED;
             $orderItems    = $order->orderItems();
 
             foreach ($orderItems as $orderItem) {
