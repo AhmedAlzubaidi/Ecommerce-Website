@@ -28,18 +28,15 @@ class DeletePendingOrders
      */
     public function handle()
     {
-        $oneMinute = config('deleteorder.delay_one_minute');
-        $time      = ($oneMinute ? Carbon::now()->subMinute() : Carbon::now()->subHour());
+        $time      = Carbon::now()->subMinute();
         $orders    = Order::where('created_at', '<', $time)->get();
 
         foreach ($orders as $order) {
             $order->status = config('orderstatus.CANCELED');
             $orderItems    = $order->orderItems();
-            $products      = array();
 
             foreach ($orderItems as $orderItem) {
                 $product = $orderItem->product();
-                array_push($products, $product);
                 $product->quantity++;
             }
 
