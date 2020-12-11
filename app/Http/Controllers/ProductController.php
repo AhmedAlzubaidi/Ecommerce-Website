@@ -7,8 +7,7 @@ use App\Http\Requests\ProductOptionRequest;
 use App\Http\Requests\ProductRequest;
 use App\Product;
 use App\ProductOption;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -46,8 +45,8 @@ class ProductController extends Controller
             $image = $request->file('image');
             $extension = $image->getClientOriginalExtension();
             $fileName = time() . '.' . $extension;
-            $image->move('uploads/products/', $fileName);
-            $product->image = $fileName;
+            $image->storeAs('images/products/', $fileName);
+            $product->image = Storage::url('images/products/' . $fileName);
         }
 
         if ($request->has('discount')) {
@@ -74,8 +73,6 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $result = Auth::check() ? 'true' : 'false';
-        Log::info('user object: ' . $result);
         return $product->loadAll();
     }
 
@@ -126,6 +123,9 @@ class ProductController extends Controller
             $option->delete();
         }
 
+        $imageURL = $product->image;
+        $imagePath = substr($imageURL, strpos($imageURL, 'images/products/'), strlen($imageURL) - 1);
+        Storage::delete($imagePath);
         return $product->delete();
     }
 
